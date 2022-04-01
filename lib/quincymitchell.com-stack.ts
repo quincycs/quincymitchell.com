@@ -1,4 +1,4 @@
-import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { AllowedMethods, CachedMethods, Distribution, OriginRequestPolicy, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -37,6 +37,12 @@ export class QuincymitchellComStack extends Stack {
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS, // needed for cors
         cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS, // needed for cors
       },
+      errorResponses: [{ // for single page application router support
+        httpStatus: 403, //forbidden
+        responseHttpStatus: 200,
+        responsePagePath: '/index.html',
+        ttl: Duration.seconds(10)
+      }],
       defaultRootObject: 'index.html',
       domainNames: [domainName, `www.${domainName}`],
       certificate: mycert
