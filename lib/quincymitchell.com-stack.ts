@@ -2,7 +2,7 @@ import { Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { AllowedMethods, CachedMethods, Distribution, OriginRequestPolicy, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { BlockPublicAccess, Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket, BucketAccessControl, BucketEncryption, HttpMethods, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 
@@ -24,6 +24,9 @@ export class QuincymitchellComStack extends Stack {
       }],
       enforceSSL: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      objectOwnership: ObjectOwnership.BUCKET_OWNER_ENFORCED,
+      encryption: BucketEncryption.S3_MANAGED,
+      accessControl: BucketAccessControl.PRIVATE,
       removalPolicy: RemovalPolicy.RETAIN
     });
     const mycert = Certificate.fromCertificateArn(this, 'certificate', certArnParam.stringValue);
@@ -41,7 +44,7 @@ export class QuincymitchellComStack extends Stack {
         httpStatus: 403, //forbidden
         responseHttpStatus: 200,
         responsePagePath: '/index.html',
-        ttl: Duration.seconds(10)
+        ttl: Duration.minutes(10)
       }],
       defaultRootObject: 'index.html',
       domainNames: [domainName, `www.${domainName}`],
